@@ -9,7 +9,7 @@ from blur_detector_image import detect_image_blur
 # import the necessary packages
 
 
-from db import Image, Video
+from db import Image, Video, CleanVideo
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
@@ -24,6 +24,20 @@ def save_video(file, path):
         file =  os.path.basename(path)
         name, ext = file.split('.') # second piece
         vid = Video(filename=name,extension=ext,filepath=path)
+        db.add(vid)
+        db.commit()
+        db.close()
+        return True
+    except Exception as e:
+        st.write("database error:",e)
+        return False
+
+def save_clean_video(path):
+    try:
+        db = opendb()
+        file =  os.path.basename(path)
+        name, ext = file.split('.') # second piece
+        vid = CleanVideo(filename=name,extension=ext,filepath=path)
         db.add(vid)
         db.commit()
         db.close()
@@ -151,7 +165,7 @@ if page == 'Image' :
     
 elif page == 'video' :
     st.subheader("upload your videos here")
-    choice = st.sidebar.selectbox("select option",['upload content', 'manage uploads', 'remove blur in video'])
+    choice = st.sidebar.selectbox("select option",['upload content', 'manage uploads', 'remove blur in video', 'show corrected video'])
 
     if choice == 'upload content':
         vidfiles = st.file_uploader('videos uploader', type= ['.mp4','.mkv'], accept_multiple_files= True)
@@ -207,12 +221,25 @@ elif page == 'video' :
         
         results = db.query(Video).all()
         db.close()
-        vid = st.sidebar.radio('select video to remove',results)
+        vid = st.sidebar.radio('select a video', results)
         if vid:
-            st.error("video to be deleted")
+            
             if os.path.exists(vid.filepath):
                 st.video(vid.filepath)
-                detect_video_blur(vid.filepath)
+                newpath = detect_video_blur(vid.filepath,vid.filename)
+                save_clean_video(newpath)
+
+    if choice == 'show corrected video': 
+        db = opendb()
+        #results = db.query(Image).filter(Image.uploader == 'admin') #if u want to use where query
+        results = db.query(CleanVideo).all()
+        db.close()
+        vid = st.sidebar.radio('select video to view',results)
+        if vid:
+            if os.path.exists(vid.filepath):
+                st.video(vid.filepath)
+
+
 else:
     st.text(ABOUT_PROJECT)  
 
