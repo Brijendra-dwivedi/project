@@ -226,8 +226,8 @@ elif page == 'video' :
             
             if os.path.exists(vid.filepath):
                 st.video(vid.filepath)
-                newpath = detect_video_blur(vid.filepath,vid.filename)
-                save_clean_video(newpath)
+                newpath,mp4path = detect_video_blur(vid.filepath,vid.filename)
+                save_clean_video(mp4path)
             else:
                 st.error('file no found')
         else:

@@ -1,6 +1,6 @@
 import numpy as np
 import cv2 as cv
-cap = cv.VideoCapture('output.avi')
+cap = cv.VideoCapture('output_blur.avi')
 
 while True:
     # Capture frame-by-frame
