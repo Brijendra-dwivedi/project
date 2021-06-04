@@ -11,48 +11,33 @@ import time
 import cv2
 from converter import convert_video
 
-
-
-
 # initialize the video stream and allow the camera sensor to warm up
-def detect_video_blur(path,output, threshold=20):
-	print("[INFO] starting video ...")
-	
-	fourcc = cv2.VideoWriter_fourcc('m','p','4','v')
-	out = cv2.VideoWriter('temp.mp4',fourcc, 30.0, (640,480))
-
+def detect_video_blur(path,output,size=60, threshold=20,vis=False):
 	vs = cv2.VideoCapture(path)
+	fourcc = cv2.VideoWriter_fourcc(*'XVID')
+	out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640,  480))
 	# loop over the frames from the video stream
+	frame_removed = 0
+	frame_kept = 0
+	total_frames = 0
+	print("[>>>] starting processing ...")
 	while True:
-		# grab the frame from the threaded video stream and resize it
-		# to have a maximum width of 400 pixels
-		_,frame = vs.read()
-		# frame = imutils.resize(frame, width=500)
-		if _:
-
-			# convert the frame to grayscale and detect blur in it
+		state,frame = vs.read()
+		if state:
 			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-			(mean, blurry) = detect_blur_fft(gray, size=60,thresh=threshold, vis=False)
+			(mean, blurry) = detect_blur_fft(gray, size=size, thresh=threshold, vis=vis)
 			if not blurry:
+				frame_kept += 1
 				out.write(frame)
-				print('saving frame')
+				cv2.imshow('blur',frame)
+				print('.',end='')
 			else:
-				print('blurry frame')	
-			# draw on the frame, indicating whether or not it is blurry
-			# color = (0, 0, 255) if blurry else (0, 255, 0)
-			# text = "Blurry ({:.4f})" if blurry else "Not Blurry ({:.4f})"
-			# text = text.format(mean)
-			# cv2.putText(frame, text, (10, 25), cv2.FONT_HERSHEY_SIMPLEX,
-			# 	0.7, color, 2)
-
-			# show the output frame
-			# cv2.imshow("Frame", frame)
-			# key = cv2.waitKey(1)
-
-			# # if the `q` key was pressed, break from the loop
-			# if key == ord("q"):
-			# 	break
+				frame_removed+=1
+			total_frames += 1
+			if cv2.waitKey(1) == 27:
+				break
 		else :
+			print('video frame read')
 			break
 
 
@@ -60,6 +45,12 @@ def detect_video_blur(path,output, threshold=20):
 	
 	vs.release()
 	out.release()
-	print('coverting video')
+	cv2.destroyAllWindows()
+	print("total frame =>",total_frames)
+	print("frame removed =>",frame_removed)
+	print("frame kept =>",frame_kept)
+	return 'output.avi'
 
-	return convert_video('temp.mp4')
+if __name__ =="__main__":
+	detect_video_blur(r"videos\OpenCV 3 Python blur detection.mp4","blurv.mp4")
+# folder open kro

@@ -222,12 +222,16 @@ elif page == 'video' :
         results = db.query(Video).all()
         db.close()
         vid = st.sidebar.radio('select a video', results)
-        if vid:
+        if vid and st.sidebar.button("start process"):
             
             if os.path.exists(vid.filepath):
                 st.video(vid.filepath)
                 newpath = detect_video_blur(vid.filepath,vid.filename)
                 save_clean_video(newpath)
+            else:
+                st.error('file no found')
+        else:
+            st.info("Select a file to remove blue in video")
 
     if choice == 'show corrected video': 
         db = opendb()
