@@ -15,7 +15,7 @@ from converter import convert_video
 def detect_video_blur(path,output,size=60, threshold=20,vis=False):
 	vs = cv2.VideoCapture(path)
 	fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	out = cv2.VideoWriter('output.avi', fourcc, 20.0, (640,  480))
+	out = cv2.VideoWriter('output.avi', fourcc, 20.0, (int(cap.get(3)), int(cap.get(4))))
 	# loop over the frames from the video stream
 	frame_removed = 0
 	frame_kept = 0
