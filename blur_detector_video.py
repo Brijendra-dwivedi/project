@@ -51,7 +51,8 @@ def detect_video_blur(path,output,size=60, threshold=20,vis=False):
 	print("total frame =>",total_frames)
 	print("frame removed =>",frame_removed)
 	print("frame kept =>",frame_kept)
-	result = convert_video('output.avi')
+	if frame_kept>0:
+		result = convert_video('output.avi')
 	return 'output.avi',result
 
 if __name__ =="__main__":
